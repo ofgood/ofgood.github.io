@@ -1,97 +1,15 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0" />
-    <title>免费美剧下载</title>
-    <link rel="stylesheet" href="./assets/reset.css" />
-    <link rel="stylesheet" href="./assets/style.css" />
-    <!-- 确保在使用数据之前加载数据文件 -->
-    <script src="./assets/data.js"></script>
+    <title>Document</title>
   </head>
-
   <body>
-    <div class="container">
-      <h2>免费美剧下载（持续更新）</h2>
-      <div class="alphabet-nav" id="alphabet-nav">
-        <!-- 字母导航将由JavaScript生成 -->
-      </div>
-
-      <div id="series-container">
-        <!-- 剧集内容将由JavaScript生成 -->
-      </div>
+    <div>
+      <a href="./series.html">剧集</a>
     </div>
-
-    <script>
-      // 生成字母导航
-      function generateAlphabetNav() {
-        const alphabetNav = document.getElementById("alphabet-nav");
-        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-        for (let letter of letters) {
-          const link = document.createElement("a");
-          link.href = `#${letter}`;
-          link.textContent = letter;
-          alphabetNav.appendChild(link);
-        }
-      }
-
-      // 生成剧集内容
-      function generateSeriesContent() {
-        const seriesContainer = document.getElementById(
-          "series-container"
-        );
-        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-        for (let letter of letters) {
-          // 创建每个字母的区域
-          const sectionDiv = document.createElement("div");
-          sectionDiv.className = "series-section";
-          sectionDiv.id = letter;
-
-          // 添加标题
-          const heading = document.createElement("h2");
-          heading.textContent = letter;
-          sectionDiv.appendChild(heading);
-
-          // 添加剧集列表
-          const seriesList = document.createElement("ul");
-          seriesList.className = "series-list";
-
-          // 如果有该字母的数据，则添加剧集
-          if (seriesData[letter] && seriesData[letter].length > 0) {
-            seriesData[letter].forEach(series => {
-              const listItem = document.createElement("li");
-              const link = document.createElement("a");
-              link.href = series.url;
-              link.target = "_blank";
-
-              // 构建显示文本 - 简化版本
-              let displayText = `${letter}《${series.name}》`;
-
-              link.textContent = displayText;
-              listItem.appendChild(link);
-              seriesList.appendChild(listItem);
-            });
-          } else {
-            // 如果没有该字母的数据，显示提示信息
-            const listItem = document.createElement("li");
-            listItem.textContent = `暂无以${letter}开头的汉语名称影视剧`;
-            seriesList.appendChild(listItem);
-          }
-
-          sectionDiv.appendChild(seriesList);
-          seriesContainer.appendChild(sectionDiv);
-        }
-      }
-
-      // 页面加载时执行
-      document.addEventListener("DOMContentLoaded", function () {
-        generateAlphabetNav();
-        generateSeriesContent();
-      });
-    </script>
   </body>
 </html>
