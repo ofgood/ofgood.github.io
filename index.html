@@ -2,173 +2,96 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
     <title>免费美剧下载</title>
     <link rel="stylesheet" href="./assets/reset.css" />
     <link rel="stylesheet" href="./assets/style.css" />
+    <!-- 确保在使用数据之前加载数据文件 -->
+    <script src="./assets/data.js"></script>
   </head>
+
   <body>
     <div class="container">
       <h2>免费美剧下载（持续更新）</h2>
-      <div class="alphabet-nav">
-        <a href="#A">A</a>
-        <a href="#B">B</a>
-        <a href="#C">C</a>
-        <a href="#D">D</a>
-        <a href="#E">E</a>
-        <a href="#F">F</a>
-        <a href="#G">G</a>
-        <a href="#H">H</a>
-        <a href="#I">I</a>
-        <a href="#J">J</a>
-        <a href="#K">K</a>
-        <a href="#L">L</a>
-        <a href="#M">M</a>
-        <a href="#N">N</a>
-        <a href="#O">O</a>
-        <a href="#P">P</a>
-        <a href="#Q">Q</a>
-        <a href="#R">R</a>
-        <a href="#S">S</a>
-        <a href="#T">T</a>
-        <a href="#U">U</a>
-        <a href="#V">V</a>
-        <a href="#W">W</a>
-        <a href="#X">X</a>
-        <a href="#Y">Y</a>
-        <a href="#Z">Z</a>
+      <div class="alphabet-nav" id="alphabet-nav">
+        <!-- 字母导航将由JavaScript生成 -->
       </div>
 
-      <!-- A Section -->
-      <div class="series-section" id="A">
-        <h2>A</h2>
-        <ul class="series-list">
-          <li>
-            <a href="https://example.com/download/arrow" target="_blank"
-              >Arrow (绿箭侠)</a
-            >
-          </li>
-          <li>
-            <a href="https://example.com/download/americangods" target="_blank"
-              >American Gods (美国众神)</a
-            >
-          </li>
-          <li>
-            <a
-              href="https://example.com/download/agents_of_shield"
-              target="_blank"
-              >Agents of S.H.I.E.L.D. (神盾局特工)</a
-            >
-          </li>
-        </ul>
-      </div>
-
-      <!-- B Section -->
-      <div class="series-section" id="B">
-        <h2>B</h2>
-        <ul class="series-list">
-          <li>
-            <a href="https://example.com/download/breaking_bad" target="_blank"
-              >Breaking Bad (绝命毒师)</a
-            >
-          </li>
-          <li>
-            <a
-              href="https://example.com/download/better_call_saul"
-              target="_blank"
-              >Better Call Saul (风骚律师)</a
-            >
-          </li>
-        </ul>
-      </div>
-
-      <!-- F Section -->
-      <div class="series-section" id="F">
-        <h2>F</h2>
-        <ul class="series-list">
-          <li>
-            <a href="https://example.com/download/friends" target="_blank"
-              >Friends (老友记)</a
-            >
-          </li>
-          <li>
-            <a href="https://example.com/download/flash" target="_blank"
-              >The Flash (闪电侠)</a
-            >
-          </li>
-        </ul>
-      </div>
-
-      <!-- G Section -->
-      <div class="series-section" id="G">
-        <h2>G</h2>
-        <ul class="series-list">
-          <li>
-            <a
-              href="https://example.com/download/game_of_thrones"
-              target="_blank"
-              >Game of Thrones (权力的游戏)</a
-            >
-          </li>
-          <li>
-            <a href="https://example.com/download/greys_anatomy" target="_blank"
-              >Grey's Anatomy (实习医生格蕾)</a
-            >
-          </li>
-        </ul>
-      </div>
-
-      <!-- P Section -->
-      <div class="series-section" id="P">
-        <h2>P</h2>
-        <ul class="series-list">
-          <li>
-            <a href="https://example.com/download/prison_break" target="_blank"
-              >Prison Break (越狱)</a
-            >
-          </li>
-        </ul>
-      </div>
-
-      <!-- S Section -->
-      <div class="series-section" id="S">
-        <h2>S</h2>
-        <ul class="series-list">
-          <li>
-            <a
-              href="https://example.com/download/stranger_things"
-              target="_blank"
-              >Stranger Things (怪奇物语)</a
-            >
-          </li>
-          <li>
-            <a href="https://example.com/download/supernatural" target="_blank"
-              >Supernatural (邪恶力量)</a
-            >
-          </li>
-        </ul>
-      </div>
-
-      <!-- T Section -->
-      <div class="series-section" id="T">
-        <h2>T</h2>
-        <ul class="series-list">
-          <li>
-            <a
-              href="https://example.com/download/the_walking_dead"
-              target="_blank"
-              >The Walking Dead (行尸走肉)</a
-            >
-          </li>
-          <li>
-            <a
-              href="https://example.com/download/the_big_bang_theory"
-              target="_blank"
-              >The Big Bang Theory (生活大爆炸)</a
-            >
-          </li>
-        </ul>
+      <div id="series-container">
+        <!-- 剧集内容将由JavaScript生成 -->
       </div>
     </div>
+
+    <script>
+      // 生成字母导航
+      function generateAlphabetNav() {
+        const alphabetNav = document.getElementById("alphabet-nav");
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        for (let letter of letters) {
+          const link = document.createElement("a");
+          link.href = `#${letter}`;
+          link.textContent = letter;
+          alphabetNav.appendChild(link);
+        }
+      }
+
+      // 生成剧集内容
+      function generateSeriesContent() {
+        const seriesContainer = document.getElementById(
+          "series-container"
+        );
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        for (let letter of letters) {
+          // 创建每个字母的区域
+          const sectionDiv = document.createElement("div");
+          sectionDiv.className = "series-section";
+          sectionDiv.id = letter;
+
+          // 添加标题
+          const heading = document.createElement("h2");
+          heading.textContent = letter;
+          sectionDiv.appendChild(heading);
+
+          // 添加剧集列表
+          const seriesList = document.createElement("ul");
+          seriesList.className = "series-list";
+
+          // 如果有该字母的数据，则添加剧集
+          if (seriesData[letter] && seriesData[letter].length > 0) {
+            seriesData[letter].forEach(series => {
+              const listItem = document.createElement("li");
+              const link = document.createElement("a");
+              link.href = series.url;
+              link.target = "_blank";
+
+              // 构建显示文本 - 简化版本
+              let displayText = `${letter}《${series.name}》`;
+
+              link.textContent = displayText;
+              listItem.appendChild(link);
+              seriesList.appendChild(listItem);
+            });
+          } else {
+            // 如果没有该字母的数据，显示提示信息
+            const listItem = document.createElement("li");
+            listItem.textContent = `暂无以${letter}开头的汉语名称影视剧`;
+            seriesList.appendChild(listItem);
+          }
+
+          sectionDiv.appendChild(seriesList);
+          seriesContainer.appendChild(sectionDiv);
+        }
+      }
+
+      // 页面加载时执行
+      document.addEventListener("DOMContentLoaded", function () {
+        generateAlphabetNav();
+        generateSeriesContent();
+      });
+    </script>
   </body>
 </html>
