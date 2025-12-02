@@ -1,15 +1,366 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>智能排班表（1上2休）</title>
+    <link rel="stylesheet" href="./assets/reset.css" />
+    <link rel="stylesheet" href="./assets/style.css" />
+    <style>
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 12px 0;
+      }
+      .controls label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+      }
+      .controls input,
+      .controls textarea,
+      .controls select,
+      .controls button {
+        font-size: 14px;
+        padding: 6px 8px;
+      }
+      .controls textarea {
+        width: 420px;
+        height: 100px;
+      }
+      .actions {
+        display: flex;
+        gap: 12px;
+      }
+      .hint {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #fffbe6;
+        border-left: 4px solid #faad14;
+        color: #614700;
+        padding: 10px 12px;
+        border-radius: 6px;
+        margin: 10px 0;
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .hint.highlight {
+        background: #e6f7ff;
+        border-left-color: #1890ff;
+        color: #0b3a64;
+      }
+      .hint strong {
+        font-weight: 600;
+      }
+      .hint a {
+        color: inherit;
+        text-decoration: underline;
+      }
+      .warn {
+        color: #c00;
+        margin: 8px 0;
+      }
+      .table-wrap {
+        overflow-x: auto;
+        overflow-y: hidden;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        -webkit-overflow-scrolling: touch;
+      }
+      table.schedule {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 760px;
+      }
+      table.schedule th,
+      table.schedule td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+        font-size: 12px;
+      }
+      table.schedule thead th {
+        position: sticky;
+        top: 0;
+        background: #fafafa;
+      }
+      table.schedule th:first-child,
+      table.schedule td:first-child,
+      table.schedule tbody th:first-child {
+        position: sticky;
+        left: 0;
+        background: #fff;
+        z-index: 2;
+      }
+      table.schedule thead th:first-child {
+        z-index: 3;
+        background: #fafafa;
+      }
+      td.work {
+        background: #e6ffed;
+        color: #0a7;
+      }
+      td.rest {
+        background: #f7f7f7;
+        color: #999;
+      }
+      td.zero {
+        background: #ffecec;
+        color: #c00;
+      }
+      .container {
+        padding: 12px;
+      }
+      .actions button {
+        padding: 8px 10px;
+      }
+      @media (max-width: 768px) {
+        .controls {
+          gap: 8px;
+        }
+        .controls label {
+          flex: 1 1 100%;
+        }
+        .actions {
+          flex-wrap: wrap;
+        }
+        table.schedule {
+          min-width: 600px;
+        }
+        table.schedule th,
+        table.schedule td {
+          padding: 6px;
+          font-size: 11px;
+        }
+        .hint {
+          font-size: 12px;
+          padding: 8px 10px;
+          border-radius: 6px;
+        }
+      }
+      @media (max-width: 420px) {
+        table.schedule {
+          min-width: 520px;
+        }
+        table.schedule th,
+        table.schedule td {
+          padding: 5px;
+          font-size: 10px;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div>
-      <a href="./series.html">剧集</a>
+    <div class="container">
+      <h1>智能排班表（1上2休）</h1>
+      <div class="controls">
+        <label>
+          开始日期
+          <input type="date" id="startDate" />
+        </label>
+        <label>
+          天数
+          <input
+            type="number"
+            id="days"
+            min="1"
+            max="365"
+            value="365" />
+        </label>
+      </div>
+
+      <div class="controls actions">
+        <button id="generate">生成排班</button>
+        <button id="exportCsv" disabled>导出 CSV</button>
+      </div>
+      <div class="controls">
+        <label>
+          预测日期
+          <input type="date" id="predictDate" />
+        </label>
+        <button id="predictStatus">预测</button>
+      </div>
+      <div class="hint">
+        规则：以开始日期为第 1 天上班，随后休息 2
+        天，循环。休息标注为“休(1)”或“休(2)”。
+      </div>
+      <div id="summary" class="hint"></div>
+      <div id="predictResult" class="hint"></div>
+      <div class="table-wrap" id="tableWrap"></div>
     </div>
+
+    <script>
+      function fmtDate(d) {
+        const y = d.getFullYear();
+        const m = (d.getMonth() + 1).toString().padStart(2, "0");
+        const day = d.getDate().toString().padStart(2, "0");
+        const wk = ["日", "一", "二", "三", "四", "五", "六"][
+          d.getDay()
+        ];
+        return `${y}-${m}-${day} 周${wk}`;
+      }
+      function addDays(d, n) {
+        const x = new Date(d.getTime());
+        x.setDate(x.getDate() + n);
+        return x;
+      }
+      function daysBetween(a, b) {
+        const da = new Date(
+          a.getFullYear(),
+          a.getMonth(),
+          a.getDate()
+        );
+        const db = new Date(
+          b.getFullYear(),
+          b.getMonth(),
+          b.getDate()
+        );
+        return Math.round((db - da) / 86400000);
+      }
+      function statusLabel(r) {
+        if (r === 0) return "上";
+        if (r === 1) return "休(1)";
+        return "休(2)";
+      }
+      function generateData(startDate, days) {
+        const dates = [];
+        for (let i = 0; i < days; i++)
+          dates.push(addDays(startDate, i));
+        const states = dates.map(d => {
+          const diff = daysBetween(startDate, d);
+          const r = ((diff % 3) + 3) % 3;
+          return r;
+        });
+        return { dates, states };
+      }
+      function renderTable(data) {
+        const wrap = document.getElementById("tableWrap");
+        wrap.innerHTML = "";
+        const table = document.createElement("table");
+        table.className = "schedule";
+        const thead = document.createElement("thead");
+        const hr = document.createElement("tr");
+        const h0 = document.createElement("th");
+        h0.textContent = "状态/日期";
+        hr.appendChild(h0);
+        data.dates.forEach(d => {
+          const th = document.createElement("th");
+          th.textContent = fmtDate(d);
+          hr.appendChild(th);
+        });
+        thead.appendChild(hr);
+        table.appendChild(thead);
+        const tbody = document.createElement("tbody");
+        const tr = document.createElement("tr");
+        const th = document.createElement("th");
+        th.textContent = "状态";
+        tr.appendChild(th);
+        data.states.forEach(r => {
+          const td = document.createElement("td");
+          td.textContent = statusLabel(r);
+          td.className = r === 0 ? "work" : "rest";
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+        table.appendChild(tbody);
+        wrap.appendChild(table);
+        const sum = document.getElementById("summary");
+        sum.textContent = `周期：3 天，上班 1 天休息 2 天`;
+        document.getElementById("exportCsv").disabled = false;
+      }
+      function toCsv(data) {
+        const head = ["日期", ...data.dates.map(fmtDate)].join(",");
+        const row = [
+          "状态",
+          ...data.states.map(r => statusLabel(r)),
+        ].join(",");
+        return [head, row].join("\n");
+      }
+      function downloadCsv(filename, content) {
+        const blob = new Blob(["\ufeff" + content], {
+          type: "text/csv;charset=utf-8;",
+        });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+      }
+      document.addEventListener("DOMContentLoaded", function () {
+        const sd = document.getElementById("startDate");
+        const today = new Date();
+        sd.value = [
+          today.getFullYear(),
+          (today.getMonth() + 1).toString().padStart(2, "0"),
+          today.getDate().toString().padStart(2, "0"),
+        ].join("-");
+        const pd = document.getElementById("predictDate");
+        if (pd) pd.value = sd.value;
+        const pr = document.getElementById("predictResult");
+        if (pr) pr.classList.add("highlight");
+        document
+          .getElementById("startDate")
+          .addEventListener("change", function () {
+            document.getElementById("tableWrap").innerHTML = "";
+            document.getElementById("summary").textContent = "";
+            document.getElementById("predictResult").textContent = "";
+            document.getElementById("exportCsv").disabled = true;
+          });
+        document
+          .getElementById("generate")
+          .addEventListener("click", function () {
+            const start = new Date(
+              document.getElementById("startDate").value || sd.value
+            );
+            const days =
+              parseInt(document.getElementById("days").value, 10) ||
+              30;
+            const data = generateData(start, days);
+            renderTable(data);
+          });
+        document
+          .getElementById("exportCsv")
+          .addEventListener("click", function () {
+            const start = new Date(
+              document.getElementById("startDate").value
+            );
+            const days =
+              parseInt(document.getElementById("days").value, 10) ||
+              30;
+            const data = generateData(start, days);
+            const csv = toCsv(data);
+            downloadCsv("智能排班.csv", csv);
+          });
+        document
+          .getElementById("predictStatus")
+          .addEventListener("click", function () {
+            const start = new Date(
+              document.getElementById("startDate").value || sd.value
+            );
+            const targetStr =
+              document.getElementById("predictDate").value;
+            if (!targetStr) {
+              document.getElementById("predictResult").textContent =
+                "请先选择预测日期";
+              return;
+            }
+            const target = new Date(targetStr);
+            const diff = daysBetween(start, target);
+            const r = ((diff % 3) + 3) % 3;
+            const res =
+              r === 0 ? "上班" : r === 1 ? "休息第1天" : "休息第2天";
+            document.getElementById(
+              "predictResult"
+            ).textContent = `${fmtDate(target)} → ${res}`;
+          });
+      });
+    </script>
   </body>
 </html>
